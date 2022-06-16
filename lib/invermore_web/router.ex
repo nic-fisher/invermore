@@ -17,13 +17,7 @@ defmodule InvermoreWeb.Router do
   scope "/", InvermoreWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
-  end
-
-  scope "/worker", InvermoreWeb do
-    pipe_through [:browser]
-
-    live "/", WorkerLiveView
+    live "/", GameLiveView
   end
 
   # Other scopes may use custom stacks.

@@ -17,7 +17,7 @@ defmodule Invermore.Application do
       # Start the Endpoint (http/https)
       InvermoreWeb.Endpoint,
 
-      {Invermore.Worker, [:hello]}
+      {Invermore.Game, []},
       # Start a worker by calling: Invermore.Worker.start_link(arg)
       # {Invermore.Worker, arg}
     ]
