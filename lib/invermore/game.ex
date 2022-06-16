@@ -57,6 +57,7 @@ defmodule Invermore.Game do
 
   defp calculate_move(:positive, position, max) do
     new_position = position + 25
+
     if new_position < max do
       new_position
     else
