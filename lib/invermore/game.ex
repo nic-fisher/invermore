@@ -1,10 +1,10 @@
 defmodule Invermore.Game do
   use GenServer
 
-  @directions ["left", "right", "up", "down"]
+  @directions [:left, :right, :up, :down]
 
   defmodule State do
-    defstruct left: nil, top: nil, max_left: nil, max_top: nil
+    defstruct left: nil, top: nil, max_left: nil, max_top: nil, moving_direction: nil
   end
 
   ## Client API
@@ -24,7 +24,7 @@ defmodule Invermore.Game do
   ## Server Callbacks
 
   def init(:ok) do
-    {:ok, %State{left: 340, top: 190, max_left: 680, max_top: 380}}
+    {:ok, %State{left: 340, top: 190, max_left: 680, max_top: 380, moving_direction: nil}}
   end
 
   def handle_call(:get_state, _from, state) do
@@ -33,22 +33,22 @@ defmodule Invermore.Game do
 
   def handle_call(:move_right, _from, state) do
     new_position = calculate_move(:positive, state.left, state.max_left)
-    {:reply, :ok, %{state | left: new_position}}
+    {:reply, :ok, %{state | left: new_position, moving_direction: :right}}
   end
 
   def handle_call(:move_left, _from, state) do
     new_position = calculate_move(:negative, state.left)
-    {:reply, :ok, %{state | left: new_position}}
+    {:reply, :ok, %{state | left: new_position, moving_direction: :left}}
   end
 
   def handle_call(:move_up, _from, state) do
     new_position = calculate_move(:negative, state.top)
-    {:reply, :ok, %{state | top: new_position}}
+    {:reply, :ok, %{state | top: new_position, moving_direction: :up}}
   end
 
   def handle_call(:move_down, _from, state) do
     new_position = calculate_move(:positive, state.top, state.max_top)
-    {:reply, :ok, %{state | top: new_position}}
+    {:reply, :ok, %{state | top: new_position, moving_direction: :down}}
   end
 
   defp calculate_move(:positive, position, max) when position >= max do
