@@ -1,11 +1,9 @@
 defmodule Invermore.Game do
+  alias Invermore.Game
+
   use GenServer
 
   @directions [:left, :right, :up, :down]
-
-  defmodule State do
-    defstruct left: nil, top: nil, max_left: nil, max_top: nil, moving_direction: nil
-  end
 
   ## Client API
 
@@ -24,7 +22,7 @@ defmodule Invermore.Game do
   ## Server Callbacks
 
   def init(:ok) do
-    {:ok, %State{left: 340, top: 190, max_left: 680, max_top: 380, moving_direction: nil}}
+    {:ok, %Game.State{}}
   end
 
   def handle_call(:get_state, _from, state) do

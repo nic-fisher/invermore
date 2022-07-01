@@ -1,7 +1,7 @@
 defmodule InvermoreWeb.GameLiveView do
   use Phoenix.LiveView
 
-  alias Invermore.{Game, GameManager}
+  alias Invermore.Game
 
   def render(assigns) do
     Phoenix.View.render(InvermoreWeb.GameView, "show.html", assigns)
@@ -13,17 +13,17 @@ defmodule InvermoreWeb.GameLiveView do
   end
 
   def handle_event("key_pressed", %{"key" => key_pressed}, socket) when key_pressed in ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"] do
-    updated_state = GameManager.move(key_pressed)
+    updated_state = Game.Manager.move(key_pressed)
 
     {:noreply, assign(socket, game_state: updated_state)}
   end
 
-  def handle_event("key_pressed", %{"key" => key_pressed}, socket) do
+  def handle_event("key_pressed", %{"key" => _key_pressed}, socket) do
     {:noreply, socket}
   end
 
   def handle_info(%{action: "continue_movement", direction: direction}, socket) do
-    updated_state = GameManager.continue_movement(direction)
+    updated_state = Game.Manager.continue_movement(direction)
 
     {:noreply, assign(socket, game_state: updated_state)}
   end
