@@ -2,6 +2,16 @@
   <%= inspect(@current_state) %>
 </h2>
 
+<span>Left: <%= @position.left %> </span>
+<span>Top: <%= @position.top %> </span>
+
+<div style="width: 50px; height: 50px; background-color: #f79; position: absolute; top: <%= @position.top %>px; left: <%= @position.left %>px;">
+
+</div>
+
 <button phx-click="update-state">Update State</button>
 <button phx-click="get-state">Get State</button>
 <button phx-click="pop-from-state">Pop off State</button>
+<button phx-click="clear-state">Clear State</button>
+
+<div id="press" phx-window-keydown="key_pressed"></div>

@@ -1,0 +1,20 @@
+.game-header {
+  text-align: center;
+  font-family: 'Helvetica';
+  margin: 50px 0;
+}
+
+.frame {
+  width: 700px;
+  height: 400px;
+  margin: 0 auto;
+  position: relative; /* Ensure absolute positioned child elements are relative to this*/
+  background-color: #000;
+}
+
+.box {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  background-color: #f79;
+}

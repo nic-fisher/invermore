@@ -16,8 +16,7 @@ defmodule Invermore.Application do
       {Phoenix.PubSub, name: Invermore.PubSub},
       # Start the Endpoint (http/https)
       InvermoreWeb.Endpoint,
-
-      {Invermore.Worker, [:hello]}
+      {Invermore.Game, []}
       # Start a worker by calling: Invermore.Worker.start_link(arg)
       # {Invermore.Worker, arg}
     ]
