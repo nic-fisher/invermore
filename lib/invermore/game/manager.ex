@@ -27,36 +27,44 @@ defmodule Invermore.Game.Manager do
   @available_keys ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"]
   @available_directions [:right, :left, :up, :down]
 
-  @spec move(String.t()) :: %Invermore.Game.State{}
-  def move(key_pressed) when key_pressed in @available_keys do
+  @spec move(pid(), String.t()) :: %Invermore.Game.State{}
+  def move(pid, key_pressed) when key_pressed in @available_keys do
     direction = convert_key_to_direction(key_pressed)
-    current_state = Invermore.Game.get_state()
+    current_state = Invermore.Game.get_state(pid)
 
     if current_state.moving_direction != direction do
-      move_in_direction(direction)
+      move_in_direction(pid, direction)
     else
       current_state
     end
   end
 
-  def move(_key_pressed), do: Invermore.Game.get_state()
+  def move(pid, _key_pressed), do: Invermore.Game.get_state(pid)
 
-  @spec continue_movement(String.t()) :: %Invermore.Game.State{}
-  def continue_movement(direction) when direction in @available_directions do
-    current_state = Invermore.Game.get_state()
+  @spec continue_movement(pid(), String.t()) :: %Invermore.Game.State{}
+  def continue_movement(pid, direction) when direction in @available_directions do
+    current_state = Invermore.Game.get_state(pid)
 
     if current_state.moving_direction == direction do
-      move_in_direction(direction)
+      move_in_direction(pid, direction)
     else
       current_state
     end
   end
 
-  def continue_movement(_), do: Invermore.Game.get_state()
+  def continue_movement(pid, _direction), do: Invermore.Game.get_state(pid)
 
-  defp move_in_direction(direction) do
-    Invermore.Game.move(direction)
-    state = Invermore.Game.get_state()
+  # Returns a pid of the game
+  def start_game() do
+    #
+  end
+
+  def poll_process(pid), do: Invermore.Game.poll(pid)
+
+
+  defp move_in_direction(pid, direction) do
+    Invermore.Game.move(pid, direction)
+    state = Invermore.Game.get_state(pid)
     Process.send_after(self(), %{action: "continue_movement", direction: direction }, 100)
     state
   end

@@ -16,9 +16,8 @@ defmodule Invermore.Application do
       {Phoenix.PubSub, name: Invermore.PubSub},
       # Start the Endpoint (http/https)
       InvermoreWeb.Endpoint,
-      {Invermore.Game, []}
-      # Start a worker by calling: Invermore.Worker.start_link(arg)
-      # {Invermore.Worker, arg}
+      # {Invermore.Game, []},
+      {DynamicSupervisor, name: Invermore.Game.Supervisor, strategy: :one_for_one}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
