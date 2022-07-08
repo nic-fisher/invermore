@@ -1,28 +1,30 @@
 defmodule Invermore.Game do
-  alias Invermore.Game
-
-  use GenServer
+  use GenServer, restart: :transient
 
   @directions [:left, :right, :up, :down]
 
-  ## Client API
+  # Client API
 
   def start_link(_args) do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+    GenServer.start_link(__MODULE__, :ok)
   end
 
-  def get_state() do
-    GenServer.call(__MODULE__, :get_state)
+  def get_state(pid) do
+    GenServer.call(pid, :get_state)
   end
 
-  def move(direction) when direction in @directions do
-    GenServer.call(__MODULE__, :"move_#{direction}")
+  def move(pid, direction) when direction in @directions do
+    GenServer.call(pid, :"move_#{direction}")
   end
 
-  ## Server Callbacks
+  # Server Callbacks
 
   def init(:ok) do
-    {:ok, %Game.State{}}
+    {:ok, %Invermore.Game.State{}}
+  end
+
+  def handle_info(:stop, state) do
+    {:stop, :normal, state}
   end
 
   def handle_call(:get_state, _from, state) do
@@ -54,7 +56,7 @@ defmodule Invermore.Game do
   end
 
   defp calculate_move(:positive, position, max) do
-    new_position = position + 25
+    new_position = position + 15
 
     if new_position < max do
       new_position
@@ -68,7 +70,7 @@ defmodule Invermore.Game do
   end
 
   defp calculate_move(:negative, position) do
-    new_position = position - 25
+    new_position = position - 15
 
     if new_position > 0 do
       new_position
