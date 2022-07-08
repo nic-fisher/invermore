@@ -17,7 +17,8 @@ defmodule Invermore.Application do
       # Start the Endpoint (http/https)
       InvermoreWeb.Endpoint,
       # {Invermore.Game, []},
-      {DynamicSupervisor, name: Invermore.Game.Supervisor, strategy: :one_for_one}
+      {DynamicSupervisor, name: Invermore.Game.Supervisor, strategy: :one_for_one},
+      {DynamicSupervisor, name: Invermore.Game.MonitorSupervisor, strategy: :one_for_one}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

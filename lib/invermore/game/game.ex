@@ -3,7 +3,7 @@ defmodule Invermore.Game do
 
   @directions [:left, :right, :up, :down]
 
-  ## Client API
+  # Client API
 
   def start_link(_args) do
     GenServer.start_link(__MODULE__, :ok)
@@ -17,33 +17,14 @@ defmodule Invermore.Game do
     GenServer.call(pid, :"move_#{direction}")
   end
 
-  def poll(pid) do
-    GenServer.cast(pid, :poll)
-  end
-
-  ## Server Callbacks
+  # Server Callbacks
 
   def init(:ok) do
-    {:ok, %Invermore.Game.State{}, {:continue, :monitor_polling}}
+    {:ok, %Invermore.Game.State{}}
   end
 
-  def handle_continue(:monitor_polling, state) do
-    Process.send_after(self(), :monitor_polling, 11000)
-    {:noreply, state}
-  end
-
-  def handle_info(:monitor_polling, state) do
-    if DateTime.diff(DateTime.utc_now(), state.last_polled_at, :seconds) < 10 do
-      Process.send_after(self(), :monitor_polling, 2000)
-
-      {:noreply, state}
-    else
-      {:stop, :normal, state}
-    end
-  end
-
-  def handle_cast(:poll, state) do
-    {:noreply, %{state | last_polled_at: DateTime.utc_now()}}
+  def handle_info(:stop, state) do
+    {:stop, :normal, state}
   end
 
   def handle_call(:get_state, _from, state) do
