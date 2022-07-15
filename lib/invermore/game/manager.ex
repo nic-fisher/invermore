@@ -4,6 +4,7 @@ defmodule Invermore.Game.Manager do
   and starting the game.
   """
 
+  require Logger
 
   @doc """
   move/1
@@ -63,24 +64,32 @@ defmodule Invermore.Game.Manager do
   @doc """
   start_game/0
 
-  Creates the game and monitor processes under seperate supervisors and returns them in a tuple.
+  Creates the game and links it to the live view process.
   """
   @spec start_game() :: {:ok, pid(), pid()} | {:error, String.t()}
   def start_game() do
     with {:ok, game_pid} <- DynamicSupervisor.start_child(Invermore.Game.Supervisor, Invermore.Game),
-         {:ok, monitor_pid} <- DynamicSupervisor.start_child(Invermore.Game.MonitorSupervisor, {Invermore.Game.Monitor, game_pid}) do
-      {:ok, game_pid, monitor_pid}
+          true <- Process.link(game_pid) do
+      create_obstacle()
+      {:ok, game_pid}
     else
       _ -> {:error, "Unable to start game"}
     end
   end
 
-  @spec poll_monitor_process(pid()) :: :ok
-  def poll_monitor_process(monitor_pid), do: Invermore.Game.Monitor.poll(monitor_pid)
+  def create_obstacle() do
+    Process.send_after(self(), %{action: "create_obstacle"}, 3000)
+  end
+
+  def create_obstacle(pid) do
+    updated_state = Invermore.Game.create_obstacle(pid)
+    create_obstacle()
+    updated_state
+    # Process.send_after(self(), %{action: "create_obstacle"}, 3000)
+  end
 
   defp move_in_direction(pid, direction) do
-    Invermore.Game.move(pid, direction)
-    state = Invermore.Game.get_state(pid)
+    state = Invermore.Game.move(pid, direction)
     Process.send_after(self(), %{action: "continue_movement", direction: direction }, 100)
     state
   end

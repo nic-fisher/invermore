@@ -1,5 +1,6 @@
 defmodule InvermoreWeb.GameLiveView do
   use Phoenix.LiveView
+  require Logger
 
   alias Invermore.Game
 
@@ -13,8 +14,7 @@ defmodule InvermoreWeb.GameLiveView do
 
   def mount(_params, _, socket) do
     with true <- connected?(socket),
-         {:ok, game_pid, monitor_pid} <- Game.Manager.start_game() do
-      poll_monitor_process(monitor_pid)
+         {:ok, game_pid} <- Game.Manager.start_game() do
       state = Game.get_state(game_pid)
       {:ok, assign(socket, game_state: state, pid: game_pid)}
     else
@@ -40,19 +40,11 @@ defmodule InvermoreWeb.GameLiveView do
     {:noreply, assign(socket, game_state: updated_state)}
   end
 
-  def handle_info(%{action: "poll_monitor_process", monitor_pid: monitor_pid}, socket) do
-    poll_monitor_process(monitor_pid)
+  def handle_info(%{action: "create_obstacle"}, socket) do
+    Logger.info("Create Obstacle")
+    updated_state = Game.Manager.create_obstacle(socket.assigns.pid)
+    # Logger.info("Updated state: #{inspect(updated_state)}")
 
-    {:noreply, socket}
-  end
-
-  def poll_monitor_process(monitor_pid) do
-    Game.Manager.poll_monitor_process(monitor_pid)
-
-    Process.send_after(
-      self(),
-      %{action: "poll_monitor_process", monitor_pid: monitor_pid},
-      Invermore.Game.Monitor.live_view_polling_frequency_ms()
-    )
+    {:noreply, assign(socket, game_state: updated_state)}
   end
 end

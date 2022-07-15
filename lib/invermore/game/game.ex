@@ -2,6 +2,7 @@ defmodule Invermore.Game do
   use GenServer, restart: :transient
 
   @directions [:left, :right, :up, :down]
+  @speed 10
 
   # Client API
 
@@ -15,6 +16,10 @@ defmodule Invermore.Game do
 
   def move(pid, direction) when direction in @directions do
     GenServer.call(pid, :"move_#{direction}")
+  end
+
+  def create_obstacle(pid) do
+    GenServer.call(pid, :create_obstacle)
   end
 
   # Server Callbacks
@@ -33,22 +38,35 @@ defmodule Invermore.Game do
 
   def handle_call(:move_right, _from, state) do
     new_position = calculate_move(:positive, state.left, state.max_left)
-    {:reply, :ok, %{state | left: new_position, moving_direction: :right}}
+    updated_state = %{state | left: new_position, moving_direction: :right}
+    {:reply, updated_state, updated_state}
   end
 
   def handle_call(:move_left, _from, state) do
     new_position = calculate_move(:negative, state.left)
-    {:reply, :ok, %{state | left: new_position, moving_direction: :left}}
+    updated_state = %{state | left: new_position, moving_direction: :left}
+    {:reply, updated_state, updated_state}
   end
 
   def handle_call(:move_up, _from, state) do
     new_position = calculate_move(:negative, state.top)
-    {:reply, :ok, %{state | top: new_position, moving_direction: :up}}
+    updated_state = %{state | top: new_position, moving_direction: :up}
+    {:reply, updated_state, updated_state}
   end
 
   def handle_call(:move_down, _from, state) do
     new_position = calculate_move(:positive, state.top, state.max_top)
-    {:reply, :ok, %{state | top: new_position, moving_direction: :down}}
+    updated_state = %{state | top: new_position, moving_direction: :down}
+    {:reply, updated_state, updated_state}
+  end
+
+  def handle_call(:create_obstacle, _from, state) do
+    left = Enum.random(0..680)
+    top = Enum.random(0..380)
+    new_obstacle = %Invermore.Game.State.Obstacle{left: left, top: top}
+
+    updated_state = %{state | obstacles: [new_obstacle | state.obstacles]}
+    {:reply, updated_state, updated_state}
   end
 
   defp calculate_move(:positive, position, max) when position >= max do
@@ -56,7 +74,7 @@ defmodule Invermore.Game do
   end
 
   defp calculate_move(:positive, position, max) do
-    new_position = position + 15
+    new_position = position + @speed
 
     if new_position < max do
       new_position
@@ -70,7 +88,7 @@ defmodule Invermore.Game do
   end
 
   defp calculate_move(:negative, position) do
-    new_position = position - 15
+    new_position = position - @speed
 
     if new_position > 0 do
       new_position
