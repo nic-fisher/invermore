@@ -4,18 +4,26 @@ defmodule Invermore.Game do
   @directions [:left, :right, :up, :down]
   @speed 10
 
+  # Things I want to change:
+  # Move icon logic into an icon module
+  # Move obstacle logic into an obstacle module
+  # State will still be managed in Game Server
+
+  # Continue movement will be done in the game process but handled in icon and obstacle modules.
+  # Instead of the request coming from the live process. This should be handling the game process
+
   # Client API
 
-  def start_link(_args) do
-    GenServer.start_link(__MODULE__, :ok)
+  def start_link(live_view_pid) do
+    GenServer.start_link(__MODULE__, live_view_pid)
   end
 
   def get_state(pid) do
     GenServer.call(pid, :get_state)
   end
 
-  def move(pid, direction) when direction in @directions do
-    GenServer.call(pid, :"move_#{direction}")
+  def move_icon(pid, direction) when direction in @directions do
+    GenServer.call(pid, {:move_icon, direction})
   end
 
   def create_obstacle(pid) do
@@ -24,39 +32,28 @@ defmodule Invermore.Game do
 
   # Server Callbacks
 
-  def init(:ok) do
-    {:ok, %Invermore.Game.State{}}
+  def init(live_view_pid) do
+    {:ok, %Invermore.Game.State{live_view_pid: live_view_pid}}
   end
 
   def handle_info(:stop, state) do
     {:stop, :normal, state}
   end
 
+  def handle_info({:continue_icon_movement, direction}, state) do
+    updated_state = Invermore.Game.Icon.continue_movement(direction, state)
+    send_updated_state_to_live_view(updated_state)
+
+    {:noreply, updated_state}
+  end
+
   def handle_call(:get_state, _from, state) do
     {:reply, state, state}
   end
 
-  def handle_call(:move_right, _from, state) do
-    new_position = calculate_move(:positive, state.left, state.max_left)
-    updated_state = %{state | left: new_position, moving_direction: :right}
-    {:reply, updated_state, updated_state}
-  end
+  def handle_call({:move_icon, direction}, _from, state) do
+    updated_state = Invermore.Game.Icon.move(direction, state)
 
-  def handle_call(:move_left, _from, state) do
-    new_position = calculate_move(:negative, state.left)
-    updated_state = %{state | left: new_position, moving_direction: :left}
-    {:reply, updated_state, updated_state}
-  end
-
-  def handle_call(:move_up, _from, state) do
-    new_position = calculate_move(:negative, state.top)
-    updated_state = %{state | top: new_position, moving_direction: :up}
-    {:reply, updated_state, updated_state}
-  end
-
-  def handle_call(:move_down, _from, state) do
-    new_position = calculate_move(:positive, state.top, state.max_top)
-    updated_state = %{state | top: new_position, moving_direction: :down}
     {:reply, updated_state, updated_state}
   end
 
@@ -69,31 +66,7 @@ defmodule Invermore.Game do
     {:reply, updated_state, updated_state}
   end
 
-  defp calculate_move(:positive, position, max) when position >= max do
-    position
-  end
-
-  defp calculate_move(:positive, position, max) do
-    new_position = position + @speed
-
-    if new_position < max do
-      new_position
-    else
-      max
-    end
-  end
-
-  defp calculate_move(:negative, position) when position == 0 do
-    position
-  end
-
-  defp calculate_move(:negative, position) do
-    new_position = position - @speed
-
-    if new_position > 0 do
-      new_position
-    else
-      0
-    end
+  defp send_updated_state_to_live_view(%{live_view_pid: live_view_pid} = state) do
+    send(live_view_pid, %{action: "update_state", state: state})
   end
 end

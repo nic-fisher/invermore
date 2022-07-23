@@ -25,13 +25,15 @@ defmodule Invermore.Game.Manager do
   @spec move(pid(), String.t()) :: %Invermore.Game.State{}
   def move(pid, key_pressed) when key_pressed in @available_keys do
     direction = convert_key_to_direction(key_pressed)
-    current_state = Invermore.Game.get_state(pid)
+    Invermore.Game.move_icon(pid, direction)
 
-    if current_state.moving_direction != direction do
-      move_in_direction(pid, direction)
-    else
-      current_state
-    end
+    # current_state = Invermore.Game.get_state(pid)
+
+    # if current_state.moving_direction != direction do
+    #   move_in_direction(pid, direction)
+    # else
+    #   current_state
+    # end
   end
 
   def move(pid, _key_pressed), do: Invermore.Game.get_state(pid)
@@ -68,7 +70,7 @@ defmodule Invermore.Game.Manager do
   """
   @spec start_game() :: {:ok, pid(), pid()} | {:error, String.t()}
   def start_game() do
-    with {:ok, game_pid} <- DynamicSupervisor.start_child(Invermore.Game.Supervisor, Invermore.Game),
+    with {:ok, game_pid} <- DynamicSupervisor.start_child(Invermore.Game.Supervisor, {Invermore.Game, self()}),
           true <- Process.link(game_pid) do
       create_obstacle()
       {:ok, game_pid}
@@ -89,7 +91,7 @@ defmodule Invermore.Game.Manager do
   end
 
   defp move_in_direction(pid, direction) do
-    state = Invermore.Game.move(pid, direction)
+    state = Invermore.Game.move_icon(pid, direction)
     Process.send_after(self(), %{action: "continue_movement", direction: direction }, 100)
     state
   end
