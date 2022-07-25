@@ -72,22 +72,10 @@ defmodule Invermore.Game.Manager do
   def start_game() do
     with {:ok, game_pid} <- DynamicSupervisor.start_child(Invermore.Game.Supervisor, {Invermore.Game, self()}),
           true <- Process.link(game_pid) do
-      create_obstacle()
       {:ok, game_pid}
     else
       _ -> {:error, "Unable to start game"}
     end
-  end
-
-  def create_obstacle() do
-    Process.send_after(self(), %{action: "create_obstacle"}, 3000)
-  end
-
-  def create_obstacle(pid) do
-    updated_state = Invermore.Game.create_obstacle(pid)
-    create_obstacle()
-    updated_state
-    # Process.send_after(self(), %{action: "create_obstacle"}, 3000)
   end
 
   defp move_in_direction(pid, direction) do

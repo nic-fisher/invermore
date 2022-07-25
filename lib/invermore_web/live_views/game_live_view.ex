@@ -44,12 +44,4 @@ defmodule InvermoreWeb.GameLiveView do
 
     {:noreply, assign(socket, game_state: state)}
   end
-
-  def handle_info(%{action: "create_obstacle"}, socket) do
-    Logger.info("Create Obstacle")
-    updated_state = Game.Manager.create_obstacle(socket.assigns.pid)
-    # Logger.info("Updated state: #{inspect(updated_state)}")
-
-    {:noreply, assign(socket, game_state: updated_state)}
-  end
 end
