@@ -13,8 +13,7 @@ defmodule InvermoreWeb.GameLiveView do
 
   def mount(_params, _, socket) do
     with true <- connected?(socket),
-         {:ok, game_pid, monitor_pid} <- Game.Manager.start_game() do
-      poll_monitor_process(monitor_pid)
+         {:ok, game_pid} <- Game.Manager.start_game() do
       state = Game.get_state(game_pid)
       {:ok, assign(socket, game_state: state, pid: game_pid)}
     else
@@ -34,25 +33,7 @@ defmodule InvermoreWeb.GameLiveView do
     {:noreply, socket}
   end
 
-  def handle_info(%{action: "continue_movement", direction: direction}, socket) do
-    updated_state = Game.Manager.continue_movement(socket.assigns.pid, direction)
-
-    {:noreply, assign(socket, game_state: updated_state)}
-  end
-
-  def handle_info(%{action: "poll_monitor_process", monitor_pid: monitor_pid}, socket) do
-    poll_monitor_process(monitor_pid)
-
-    {:noreply, socket}
-  end
-
-  def poll_monitor_process(monitor_pid) do
-    Game.Manager.poll_monitor_process(monitor_pid)
-
-    Process.send_after(
-      self(),
-      %{action: "poll_monitor_process", monitor_pid: monitor_pid},
-      Invermore.Game.Monitor.live_view_polling_frequency_ms()
-    )
+  def handle_info(%{action: "update_state", state: state}, socket) do
+    {:noreply, assign(socket, game_state: state)}
   end
 end
