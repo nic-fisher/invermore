@@ -1,7 +1,7 @@
 defmodule Invermore.Game.State do
   alias Invermore.Game.Size
 
-  defstruct left: 340, top: 190, max_left: Size.max_left(), max_top: Size.max_left(), moving_direction: nil, obstacles: [], live_view_pid: nil
+  defstruct left: 340, top: 190, max_left: Size.max_left(), max_top: Size.max_top(), moving_direction: nil, obstacles: [], live_view_pid: nil
 
   defmodule Obstacle do
     defstruct id: nil, left: nil, top: nil, max_left: Size.max_left(), max_top: Size.max_top(), moving_direction: nil

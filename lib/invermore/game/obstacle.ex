@@ -3,6 +3,10 @@ defmodule Invermore.Game.Obstacle do
 
   @speed 6
 
+  @doc """
+  create/1
+  Creates a new obstacle and adds it to the obstacles list in the state
+  """
   @spec create(%State{}) :: {Ecto.UUID.t(), %State{}}
   def create(state) do
     moving_direction = Enum.random([:left, :right, :up, :down])
@@ -13,6 +17,12 @@ defmodule Invermore.Game.Obstacle do
     {new_obstacle.id, %{state | obstacles: [new_obstacle | state.obstacles]}}
   end
 
+  @doc """
+  move/2
+  Loops through the list of obstacles and updates the obstacle that matches the id. If
+  the obstacle reaches the max_left, max_top or 0, it will remove the obstacle from the
+  list. If not, it will send a "move_obstacle" message to the process after 100.
+  """
   @spec move(Ecto.UUID.t(), %State{}) :: %State{}
   def move(id, state) do
     updated_obstacles =
