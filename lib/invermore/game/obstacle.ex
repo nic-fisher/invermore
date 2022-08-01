@@ -12,7 +12,12 @@ defmodule Invermore.Game.Obstacle do
     moving_direction = Enum.random([:left, :right, :up, :down])
     {left, top} = starting_position(moving_direction)
 
-    new_obstacle = %Invermore.Game.State.Obstacle{id: Ecto.UUID.generate, left: left, top: top, moving_direction: moving_direction}
+    new_obstacle = %Invermore.Game.State.Obstacle{
+      id: Ecto.UUID.generate(),
+      left: left,
+      top: top,
+      moving_direction: moving_direction
+    }
 
     {new_obstacle.id, %{state | obstacles: [new_obstacle | state.obstacles]}}
   end
@@ -27,7 +32,9 @@ defmodule Invermore.Game.Obstacle do
   def move(id, state) do
     updated_obstacles =
       case update_obstacle_position(id, state.obstacles) do
-        {:remove_obstacle, updated_obstacles} -> updated_obstacles
+        {:remove_obstacle, updated_obstacles} ->
+          updated_obstacles
+
         {:ok, updated_obstacles} ->
           Process.send_after(self(), {:move_obstacle, id}, 100)
           updated_obstacles
@@ -42,22 +49,25 @@ defmodule Invermore.Game.Obstacle do
   defp starting_position(:down), do: {Enum.random(0..Size.max_left()), 0}
 
   defp update_obstacle_position(id, obstacles) do
-    {status, updated_obstacles} = Enum.reduce(obstacles, {:ok, []}, fn obstacle, {status, list} ->
-      if obstacle.id == id do
-        case move_in_direction(obstacle.moving_direction, obstacle) do
-          {:remove_obstacle, _} -> {:remove_obstacle, list}
-          {:ok, updated_obstacle} -> {status, [updated_obstacle | list]}
+    {status, updated_obstacles} =
+      Enum.reduce(obstacles, {:ok, []}, fn obstacle, {status, list} ->
+        if obstacle.id == id do
+          case move_in_direction(obstacle.moving_direction, obstacle) do
+            {:remove_obstacle, _} -> {:remove_obstacle, list}
+            {:ok, updated_obstacle} -> {status, [updated_obstacle | list]}
+          end
+        else
+          {status, [obstacle | list]}
         end
-      else
-        {status, [obstacle | list]}
-      end
-    end)
+      end)
 
     {status, updated_obstacles}
   end
 
   defp move_in_direction(:right, obstacle_state) do
-    {status, new_position} = calculate_move(:positive, obstacle_state.left, obstacle_state.max_left)
+    {status, new_position} =
+      calculate_move(:positive, obstacle_state.left, obstacle_state.max_left)
+
     {status, %{obstacle_state | left: new_position}}
   end
 
@@ -67,7 +77,7 @@ defmodule Invermore.Game.Obstacle do
   end
 
   defp move_in_direction(:up, obstacle_state) do
-    {status, new_position}  = calculate_move(:negative, obstacle_state.top)
+    {status, new_position} = calculate_move(:negative, obstacle_state.top)
     {status, %{obstacle_state | top: new_position}}
   end
 

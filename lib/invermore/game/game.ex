@@ -24,7 +24,8 @@ defmodule Invermore.Game do
   # Server Callbacks
 
   def init(live_view_pid) do
-    {:ok, %Invermore.Game.State{live_view_pid: live_view_pid}, {:continue, :start_creating_obstacles}}
+    {:ok, %Invermore.Game.State{live_view_pid: live_view_pid},
+     {:continue, :start_creating_obstacles}}
   end
 
   def handle_continue(:start_creating_obstacles, state) do

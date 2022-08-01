@@ -21,8 +21,9 @@ defmodule Invermore.Game.Manager do
   """
   @spec start_game() :: {:ok, pid(), pid()} | {:error, String.t()}
   def start_game() do
-    with {:ok, game_pid} <- DynamicSupervisor.start_child(Invermore.Game.Supervisor, {Invermore.Game, self()}),
-          true <- Process.link(game_pid) do
+    with {:ok, game_pid} <-
+           DynamicSupervisor.start_child(Invermore.Game.Supervisor, {Invermore.Game, self()}),
+         true <- Process.link(game_pid) do
       {:ok, game_pid}
     else
       _ -> {:error, "Unable to start game"}
@@ -34,7 +35,7 @@ defmodule Invermore.Game.Manager do
       "ArrowRight" => :right,
       "ArrowLeft" => :left,
       "ArrowUp" => :up,
-      "ArrowDown" => :down,
+      "ArrowDown" => :down
     }
 
     Map.get(moves, key_pressed)

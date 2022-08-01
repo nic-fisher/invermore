@@ -1,6 +1,5 @@
 defmodule InvermoreWeb.GameLiveView do
   use Phoenix.LiveView
-  require Logger
 
   alias Invermore.Game
 
@@ -35,7 +34,6 @@ defmodule InvermoreWeb.GameLiveView do
   end
 
   def handle_info(%{action: "update_state", state: state}, socket) do
-
     {:noreply, assign(socket, game_state: state)}
   end
 end

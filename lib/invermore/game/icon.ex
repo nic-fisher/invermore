@@ -2,7 +2,6 @@ defmodule Invermore.Game.Icon do
   alias Invermore.Game.State
   @speed 10
 
-
   @doc """
   move/1
 
