@@ -1,7 +1,9 @@
 defmodule Invermore.Game.Obstacle do
+  alias Invermore.Game.{Size, State}
+
   @speed 6
 
-  # create(state) :: {obstacle_id, updated_state}
+  @spec create(%State{}) :: {Ecto.UUID.t(), %State{}}
   def create(state) do
     moving_direction = Enum.random([:left, :right, :up, :down])
     {left, top} = starting_position(moving_direction)
@@ -11,28 +13,38 @@ defmodule Invermore.Game.Obstacle do
     {new_obstacle.id, %{state | obstacles: [new_obstacle | state.obstacles]}}
   end
 
+  @spec move(Ecto.UUID.t(), %State{}) :: %State{}
   def move(id, state) do
-    {status, obstacles} =
-      Enum.reduce(state.obstacles, {:ok, []}, fn obstacle, {status, list} ->
-        if obstacle.id == id do
-          case move_in_direction(obstacle.moving_direction, obstacle) do
-            {:remove_obstacle, _} -> {:remove_obstacle, [nil | list]}
-            {:ok, updated_obstacle} -> {status, [updated_obstacle | list]}
-          end
-        else
-          {status, [obstacle | list]}
-        end
-      end)
+    updated_obstacles =
+      case update_obstacle_position(id, state.obstacles) do
+        {:remove_obstacle, updated_obstacles} -> updated_obstacles
+        {:ok, updated_obstacles} ->
+          Process.send_after(self(), {:move_obstacle, id}, 100)
+          updated_obstacles
+      end
 
-    obstacles = Enum.reject(obstacles, &is_nil/1)
-
-    {status, %{state | obstacles: obstacles}}
+    %{state | obstacles: updated_obstacles}
   end
 
-  defp starting_position(:left), do: {680, Enum.random(0..380)}
-  defp starting_position(:right), do: {0, Enum.random(0..380)}
-  defp starting_position(:up), do: {Enum.random(0..680), 380}
-  defp starting_position(:down), do: {Enum.random(0..680), 0}
+  defp starting_position(:left), do: {Size.max_left(), Enum.random(0..Size.max_top())}
+  defp starting_position(:right), do: {0, Enum.random(0..Size.max_top())}
+  defp starting_position(:up), do: {Enum.random(0..Size.max_left()), Size.max_top()}
+  defp starting_position(:down), do: {Enum.random(0..Size.max_left()), 0}
+
+  defp update_obstacle_position(id, obstacles) do
+    {status, updated_obstacles} = Enum.reduce(obstacles, {:ok, []}, fn obstacle, {status, list} ->
+      if obstacle.id == id do
+        case move_in_direction(obstacle.moving_direction, obstacle) do
+          {:remove_obstacle, _} -> {:remove_obstacle, list}
+          {:ok, updated_obstacle} -> {status, [updated_obstacle | list]}
+        end
+      else
+        {status, [obstacle | list]}
+      end
+    end)
+
+    {status, updated_obstacles}
+  end
 
   defp move_in_direction(:right, obstacle_state) do
     {status, new_position} = calculate_move(:positive, obstacle_state.left, obstacle_state.max_left)

@@ -34,12 +34,6 @@ defmodule InvermoreWeb.GameLiveView do
     {:noreply, socket}
   end
 
-  def handle_info(%{action: "continue_movement", direction: direction}, socket) do
-    updated_state = Game.Manager.continue_movement(socket.assigns.pid, direction)
-
-    {:noreply, assign(socket, game_state: updated_state)}
-  end
-
   def handle_info(%{action: "update_state", state: state}, socket) do
 
     {:noreply, assign(socket, game_state: state)}

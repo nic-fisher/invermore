@@ -1,12 +1,20 @@
 defmodule Invermore.Game.Icon do
+  alias Invermore.Game.State
   @speed 10
 
-  # this module should:
-  # check current state if the icon is already moving in the direction provided
-  # If so, return the current state
-  # If not, move the icon, update the moving direction, send message to process to continue movement and return updated state
 
-  # move(direction, state) :: updated_state
+  @doc """
+  move/1
+
+  - If the current state moving direction doesn't equal the new direction, it will:
+    1. Calculate the new icon position and update the state
+    2. Send a continue_icon_movement message to the process after 100 milliseconds
+    3. Send a "continue_movement" message to the current process, which is handled in GameLiveView
+    4. Return the updated state
+  - If the current state moving direction equals the new direction, it will simply return the current state
+  """
+
+  @spec move(atom(), %State{}) :: %State{}
   def move(direction, state) do
     if state.moving_direction != direction do
       updated_state = move_in_direction(direction, state)
@@ -17,6 +25,7 @@ defmodule Invermore.Game.Icon do
     end
   end
 
+  @spec continue_movement(atom(), %State{}) :: %State{}
   def continue_movement(direction, state) do
     if state.moving_direction == direction do
       updated_state = move_in_direction(direction, state)

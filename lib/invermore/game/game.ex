@@ -3,14 +3,6 @@ defmodule Invermore.Game do
 
   @directions [:left, :right, :up, :down]
 
-  # Things I want to change:
-  # Move icon logic into an icon module
-  # Move obstacle logic into an obstacle module
-  # State will still be managed in Game Server
-
-  # Continue movement will be done in the game process but handled in icon and obstacle modules.
-  # Instead of the request coming from the live process. This should be handling the game process
-
   # Client API
 
   def start_link(live_view_pid) do
@@ -58,15 +50,8 @@ defmodule Invermore.Game do
   end
 
   def handle_info({:move_obstacle, id}, state) do
-    updated_state =
-      case Invermore.Game.Obstacle.move(id, state) do
-        {:remove_obstacle, updated_state} -> updated_state
-        {:ok, updated_state} ->
-          Process.send_after(self(), {:move_obstacle, id}, 100)
-          updated_state
-      end
+    updated_state = Invermore.Game.Obstacle.move(id, state)
     send_updated_state_to_live_view(updated_state)
-    # Process.send_after(self(), {:move_obstacle, id}, 100)
 
     {:noreply, updated_state}
   end
