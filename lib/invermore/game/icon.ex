@@ -12,6 +12,8 @@ defmodule Invermore.Game.Icon do
   - If the current state moving direction equals the new direction, it will return the current state
   """
   @spec move(atom(), %State{}) :: %State{}
+  def move(_direction, %{game_over: true} = state), do: state
+
   def move(direction, state) do
     if state.moving_direction != direction do
       updated_state = move_in_direction(direction, state)
@@ -24,6 +26,7 @@ defmodule Invermore.Game.Icon do
 
   @doc """
   continue_movement/2
+
   - If the current state moving direction equals the direction, it will:
     1. Calculate the new icon position and update the state
     3. Send a "continue_icon_movement" message to the process after 100
@@ -31,6 +34,8 @@ defmodule Invermore.Game.Icon do
   - If the current state moving direction doesn't equal the direction passed in, it will return the current state
   """
   @spec continue_movement(atom(), %State{}) :: %State{}
+  def continue_movement(_direction, %{game_over: true} = state), do: state
+
   def continue_movement(direction, state) do
     if state.moving_direction == direction do
       updated_state = move_in_direction(direction, state)
