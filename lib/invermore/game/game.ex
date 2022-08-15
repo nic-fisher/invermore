@@ -17,10 +17,6 @@ defmodule Invermore.Game do
     GenServer.call(pid, {:move_icon, direction})
   end
 
-  def create_obstacle(pid) do
-    GenServer.call(pid, :create_obstacle)
-  end
-
   # Server Callbacks
 
   def init(live_view_pid) do
@@ -34,27 +30,24 @@ defmodule Invermore.Game do
   end
 
   def handle_info(:create_obstacle, state) do
-    {id, updated_state} = Invermore.Game.Obstacle.create(state)
+    updated_state = Invermore.Game.Obstacle.create(state)
     send_updated_state_to_live_view(updated_state)
 
-    Process.send_after(self(), :create_obstacle, 3000)
-    Process.send_after(self(), {:move_obstacle, id}, 100)
-
-    {:noreply, updated_state}
+    {:noreply, valid_movement(updated_state)}
   end
 
   def handle_info({:continue_icon_movement, direction}, state) do
     updated_state = Invermore.Game.Icon.continue_movement(direction, state)
     send_updated_state_to_live_view(updated_state)
 
-    {:noreply, updated_state}
+    {:noreply, valid_movement(updated_state)}
   end
 
   def handle_info({:move_obstacle, id}, state) do
     updated_state = Invermore.Game.Obstacle.move(id, state)
     send_updated_state_to_live_view(updated_state)
 
-    {:noreply, updated_state}
+    {:noreply, valid_movement(updated_state)}
   end
 
   def handle_call(:get_state, _from, state) do
@@ -62,17 +55,31 @@ defmodule Invermore.Game do
   end
 
   def handle_call({:move_icon, direction}, _from, state) do
-    updated_state = Invermore.Game.Icon.move(direction, state)
+    updated_state =
+      direction
+      |> Invermore.Game.Icon.move(state)
+      |> valid_movement()
 
-    {:reply, updated_state, updated_state}
-  end
-
-  def handle_call(:create_obstacle, _from, state) do
-    updated_state = Invermore.Game.Obstacle.create(state)
     {:reply, updated_state, updated_state}
   end
 
   defp send_updated_state_to_live_view(%{live_view_pid: live_view_pid} = state) do
     send(live_view_pid, %{action: "update_state", state: state})
   end
+
+  defp valid_movement(state) do
+    invalid = Enum.any?(state.obstacles, fn obstacle ->
+      top_distance = obstacle.top - state.top
+      left_distance = obstacle.left - state.left
+
+      invalid_distances(top_distance, left_distance)
+    end)
+
+    %{state | game_over: invalid}
+  end
+
+  defp invalid_distances(top_distance, left_distance) when top_distance in -15..15 and left_distance in -15..15,
+    do: true
+
+  defp invalid_distances(_, _), do: false
 end

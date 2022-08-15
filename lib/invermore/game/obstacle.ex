@@ -7,7 +7,9 @@ defmodule Invermore.Game.Obstacle do
   create/1
   Creates a new obstacle and adds it to the obstacles list in the state
   """
-  @spec create(%State{}) :: {Ecto.UUID.t(), %State{}}
+  @spec create(%State{}) :: %State{}
+  def create(%{game_over: true} = state), do: state
+
   def create(state) do
     moving_direction = Enum.random([:left, :right, :up, :down])
     {left, top} = starting_position(moving_direction)
@@ -19,7 +21,10 @@ defmodule Invermore.Game.Obstacle do
       moving_direction: moving_direction
     }
 
-    {new_obstacle.id, %{state | obstacles: [new_obstacle | state.obstacles]}}
+    Process.send_after(self(), :create_obstacle, 3000)
+    Process.send_after(self(), {:move_obstacle, new_obstacle.id}, 100)
+
+    %{state | obstacles: [new_obstacle | state.obstacles]}
   end
 
   @doc """
@@ -29,6 +34,8 @@ defmodule Invermore.Game.Obstacle do
   list. If not, it will send a "move_obstacle" message to the process after 100.
   """
   @spec move(Ecto.UUID.t(), %State{}) :: %State{}
+  def move(_id, %{game_over: true} = state), do: state
+
   def move(id, state) do
     updated_obstacles =
       case update_obstacle_position(id, state.obstacles) do

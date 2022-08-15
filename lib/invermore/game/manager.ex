@@ -19,7 +19,7 @@ defmodule Invermore.Game.Manager do
 
   Creates the game and links it to the live view process.
   """
-  @spec start_game() :: {:ok, pid(), pid()} | {:error, String.t()}
+  @spec start_game() :: {:ok, pid()} | {:error, String.t()}
   def start_game() do
     with {:ok, game_pid} <-
            DynamicSupervisor.start_child(Invermore.Game.Supervisor, {Invermore.Game, self()}),
