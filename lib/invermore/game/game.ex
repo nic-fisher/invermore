@@ -26,7 +26,15 @@ defmodule Invermore.Game do
 
   def handle_continue(:start_creating_obstacles, state) do
     Process.send_after(self(), :create_obstacle, 3000)
+    Process.send_after(self(), :increase_score, 1000)
     {:noreply, state}
+  end
+
+  def handle_info(:increase_score, state) do
+    updated_state = Invermore.Game.Score.increase(state)
+    send_updated_state_to_live_view(updated_state)
+
+    {:noreply, updated_state}
   end
 
   def handle_info(:create_obstacle, state) do

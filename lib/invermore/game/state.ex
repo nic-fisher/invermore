@@ -8,7 +8,8 @@ defmodule Invermore.Game.State do
             moving_direction: nil,
             obstacles: [],
             live_view_pid: nil,
-            game_over: false
+            game_over: false,
+            score: 0
 
   defmodule Obstacle do
     defstruct id: nil,

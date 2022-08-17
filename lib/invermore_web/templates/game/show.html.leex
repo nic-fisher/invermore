@@ -1,6 +1,7 @@
   <div class="game-header">
     <h2></h2>
   </div>
+  <h4 class="score">Score: <%= @game_state.score %></h4>
   <div class="frame">
     <h1 class="game-over-header <%= @game_state.game_over && "game-over-header-active" %>">Game over</h1>
     <div class="box" style="top: <%= @game_state.top %>px; left: <%= @game_state.left %>px; border-radius: 20px;">
