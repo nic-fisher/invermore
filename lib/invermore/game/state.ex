@@ -7,6 +7,7 @@ defmodule Invermore.Game.State do
             max_top: Size.max_top(),
             moving_direction: nil,
             obstacles: [],
+            obstacle_speed: 5,
             live_view_pid: nil,
             game_over: false,
             score: 0
