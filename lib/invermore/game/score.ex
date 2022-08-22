@@ -23,6 +23,16 @@ defmodule Invermore.Game.Score do
     updated_state
   end
 
+  @doc """
+  increase_score_by/2
+  Increases the score by the amount provided
+  """
+
+  @spec increase_score_by(Integer.t(), %State{}) :: %State{}
+  def increase_score_by(amount, %{score: score} = state) do
+    %{state | score: score + amount}
+  end
+
   defp increase_obstacles(score) when rem(score, @increase_obstacle_frequency) == 0 do
     send(self(), :create_obstacle)
   end

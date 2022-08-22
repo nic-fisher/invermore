@@ -46,6 +46,23 @@
   background-color: green;
 }
 
+.prize {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  background-color: blue;
+}
+
+.removing-prize {
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 50%;
+  }
+}
+
 .score {
   font-family: monospace;
   text-align: center;

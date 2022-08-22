@@ -21,14 +21,17 @@ defmodule Invermore.Game do
 
   def init(live_view_pid) do
     {:ok, %Invermore.Game.State{live_view_pid: live_view_pid},
-     {:continue, :start_creating_obstacles}}
+     {:continue, :start_game}}
   end
 
-  def handle_continue(:start_creating_obstacles, state) do
+  def handle_continue(:start_game, state) do
     Process.send_after(self(), :create_obstacle, 3000)
     Process.send_after(self(), :increase_score, 1000)
+    Process.send_after(self(), :create_prize, 1000)
     {:noreply, state}
   end
+
+  # Score Callbacks
 
   def handle_info(:increase_score, state) do
     updated_state = Invermore.Game.Score.increase(state)
@@ -37,15 +40,40 @@ defmodule Invermore.Game do
     {:noreply, updated_state}
   end
 
-  def handle_info(:create_obstacle, state) do
-    updated_state = Invermore.Game.Obstacle.create(state)
+  def handle_info({:increase_score_by, amount}, state) do
+    updated_state = Invermore.Game.Score.increase_score_by(amount, state)
+    send_updated_state_to_live_view(updated_state)
+
+    {:noreply, updated_state}
+  end
+
+  # Prize Callbacks
+
+  def handle_info(:create_prize, state) do
+    updated_state = Invermore.Game.Prize.create(state)
     send_updated_state_to_live_view(updated_state)
 
     {:noreply, valid_movement(updated_state)}
   end
 
-  def handle_info({:continue_icon_movement, direction}, state) do
-    updated_state = Invermore.Game.Icon.continue_movement(direction, state)
+  def handle_info({:start_removing_prize, id}, state) do
+    updated_state = Invermore.Game.Prize.start_removing_prize(id, state)
+    send_updated_state_to_live_view(updated_state)
+
+    {:noreply, updated_state}
+  end
+
+  def handle_info({:remove_prize, id}, state) do
+    updated_state = Invermore.Game.Prize.remove_prize(id, state)
+    send_updated_state_to_live_view(updated_state)
+
+    {:noreply, updated_state}
+  end
+
+  # Obstacle Callbacks
+
+  def handle_info(:create_obstacle, state) do
+    updated_state = Invermore.Game.Obstacle.create(state)
     send_updated_state_to_live_view(updated_state)
 
     {:noreply, valid_movement(updated_state)}
@@ -58,8 +86,13 @@ defmodule Invermore.Game do
     {:noreply, valid_movement(updated_state)}
   end
 
-  def handle_call(:get_state, _from, state) do
-    {:reply, state, state}
+  # Icon Callbacks
+
+  def handle_info({:continue_icon_movement, direction}, state) do
+    updated_state = Invermore.Game.Icon.continue_movement(direction, state)
+    send_updated_state_to_live_view(updated_state)
+
+    {:noreply, valid_movement(updated_state)}
   end
 
   def handle_call({:move_icon, direction}, _from, state) do
@@ -71,23 +104,15 @@ defmodule Invermore.Game do
     {:reply, updated_state, updated_state}
   end
 
+  def handle_call(:get_state, _from, state) do
+    {:reply, state, state}
+  end
+
   defp send_updated_state_to_live_view(%{live_view_pid: live_view_pid} = state) do
     send(live_view_pid, %{action: "update_state", state: state})
   end
 
   defp valid_movement(state) do
-    invalid = Enum.any?(state.obstacles, fn obstacle ->
-      top_distance = obstacle.top - state.top
-      left_distance = obstacle.left - state.left
-
-      invalid_distances(top_distance, left_distance)
-    end)
-
-    %{state | game_over: invalid}
+    Invermore.Game.Validator.validate_movement(state)
   end
-
-  defp invalid_distances(top_distance, left_distance) when top_distance in -15..15 and left_distance in -15..15,
-    do: true
-
-  defp invalid_distances(_, _), do: false
 end
