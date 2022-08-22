@@ -1,7 +1,7 @@
 defmodule Invermore.Game.Obstacle do
   alias Invermore.Game.{Size, State}
 
-  @speed 6
+  @max_obstacles 25
 
   @doc """
   create/1
@@ -10,7 +10,7 @@ defmodule Invermore.Game.Obstacle do
   @spec create(%State{}) :: %State{}
   def create(%{game_over: true} = state), do: state
 
-  def create(state) do
+  def create(%State{obstacles: obstacles} = state) when length(obstacles) <= @max_obstacles do
     moving_direction = Enum.random([:left, :right, :up, :down])
     {left, top} = starting_position(moving_direction)
 
@@ -22,9 +22,14 @@ defmodule Invermore.Game.Obstacle do
     }
 
     Process.send_after(self(), :create_obstacle, 3000)
-    Process.send_after(self(), {:move_obstacle, new_obstacle.id}, 100)
+    Process.send_after(self(), {:move_obstacle, new_obstacle.id}, 80)
 
     %{state | obstacles: [new_obstacle | state.obstacles]}
+  end
+
+  def create(state) do
+    Process.send_after(self(), :create_obstacle, 3000)
+    state
   end
 
   @doc """
@@ -38,12 +43,12 @@ defmodule Invermore.Game.Obstacle do
 
   def move(id, state) do
     updated_obstacles =
-      case update_obstacle_position(id, state.obstacles) do
+      case update_obstacle_position(id, state) do
         {:remove_obstacle, updated_obstacles} ->
           updated_obstacles
 
         {:ok, updated_obstacles} ->
-          Process.send_after(self(), {:move_obstacle, id}, 100)
+          Process.send_after(self(), {:move_obstacle, id}, 110)
           updated_obstacles
       end
 
@@ -55,11 +60,11 @@ defmodule Invermore.Game.Obstacle do
   defp starting_position(:up), do: {Enum.random(0..Size.max_left()), Size.max_top()}
   defp starting_position(:down), do: {Enum.random(0..Size.max_left()), 0}
 
-  defp update_obstacle_position(id, obstacles) do
+  defp update_obstacle_position(id, %State{obstacles: obstacles, obstacle_speed: obstacle_speed}) do
     {status, updated_obstacles} =
       Enum.reduce(obstacles, {:ok, []}, fn obstacle, {status, list} ->
         if obstacle.id == id do
-          case move_in_direction(obstacle.moving_direction, obstacle) do
+          case move_in_direction(obstacle.moving_direction, obstacle, obstacle_speed) do
             {:remove_obstacle, _} -> {:remove_obstacle, list}
             {:ok, updated_obstacle} -> {status, [updated_obstacle | list]}
           end
@@ -71,34 +76,36 @@ defmodule Invermore.Game.Obstacle do
     {status, updated_obstacles}
   end
 
-  defp move_in_direction(:right, obstacle_state) do
+  defp move_in_direction(:right, obstacle_state, obstacle_speed) do
     {status, new_position} =
-      calculate_move(:positive, obstacle_state.left, obstacle_state.max_left)
+      calculate_move(:positive, obstacle_state.left, obstacle_state.max_left, obstacle_speed)
 
     {status, %{obstacle_state | left: new_position}}
   end
 
-  defp move_in_direction(:left, obstacle_state) do
-    {status, new_position} = calculate_move(:negative, obstacle_state.left)
+  defp move_in_direction(:left, obstacle_state, obstacle_speed) do
+    {status, new_position} = calculate_move(:negative, obstacle_state.left, obstacle_speed)
     {status, %{obstacle_state | left: new_position}}
   end
 
-  defp move_in_direction(:up, obstacle_state) do
-    {status, new_position} = calculate_move(:negative, obstacle_state.top)
+  defp move_in_direction(:up, obstacle_state, obstacle_speed) do
+    {status, new_position} = calculate_move(:negative, obstacle_state.top, obstacle_speed)
     {status, %{obstacle_state | top: new_position}}
   end
 
-  defp move_in_direction(:down, obstacle_state) do
-    {status, new_position} = calculate_move(:positive, obstacle_state.top, obstacle_state.max_top)
+  defp move_in_direction(:down, obstacle_state, obstacle_speed) do
+    {status, new_position} =
+      calculate_move(:positive, obstacle_state.top, obstacle_state.max_top, obstacle_speed)
+
     {status, %{obstacle_state | top: new_position}}
   end
 
-  defp calculate_move(:positive, position, max) when position >= max do
+  defp calculate_move(:positive, position, max, _obstacle_speed) when position >= max do
     {:ok, position}
   end
 
-  defp calculate_move(:positive, position, max) do
-    new_position = position + @speed
+  defp calculate_move(:positive, position, max, obstacle_speed) do
+    new_position = position + obstacle_speed
 
     if new_position < max do
       {:ok, new_position}
@@ -107,12 +114,12 @@ defmodule Invermore.Game.Obstacle do
     end
   end
 
-  defp calculate_move(:negative, position) when position == 0 do
+  defp calculate_move(:negative, position, _obstacle_speed) when position == 0 do
     {:ok, position}
   end
 
-  defp calculate_move(:negative, position) do
-    new_position = position - @speed
+  defp calculate_move(:negative, position, obstacle_speed) do
+    new_position = position - obstacle_speed
 
     if new_position > 0 do
       {:ok, new_position}
