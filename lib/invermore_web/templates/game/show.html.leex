@@ -10,5 +10,9 @@
       <div class="obstacle" style="top: <%= obstacle.top %>px; left: <%= obstacle.left %>px; border-radius: 20px;">
       </div>
     <% end %>
+    <%= for prize <- @game_state.prizes do %>
+      <div class="prize <%= prize.removing && "removing-prize" %>" style="top: <%= prize.top %>px; left: <%= prize.left %>px; border-radius: 20px;">
+      </div>
+    <% end %>
   </div>
   <div id="press" phx-window-keydown="key_pressed"></div>
