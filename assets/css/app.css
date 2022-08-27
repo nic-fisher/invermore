@@ -4,7 +4,6 @@
 
 /* This file is for your main application CSS */
 @import "./game.css";
-@import "home.css";
 
 /* Alerts and form errors used by phx.new */
 

@@ -1,6 +1,5 @@
 defmodule InvermoreWeb.GameLiveView do
   use Phoenix.LiveView
-  require Logger
 
   alias Invermore.Game
 

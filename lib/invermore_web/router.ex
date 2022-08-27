@@ -17,7 +17,6 @@ defmodule InvermoreWeb.Router do
   scope "/", InvermoreWeb do
     pipe_through :browser
 
-
     live "/", GameLiveView
   end
 
