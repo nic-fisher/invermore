@@ -18,8 +18,7 @@ defmodule InvermoreWeb.Router do
     pipe_through :browser
 
 
-    live "/", HomeLiveView
-    live "/game", GameLiveView
+    live "/", GameLiveView
   end
 
   # Other scopes may use custom stacks.

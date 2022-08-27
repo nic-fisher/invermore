@@ -13,6 +13,10 @@ defmodule Invermore.Game do
     GenServer.call(pid, :get_state)
   end
 
+  def reset_state(pid) do
+    GenServer.call(pid, :reset_state)
+  end
+
   def move_icon(pid, direction) when direction in @directions do
     GenServer.call(pid, {:move_icon, direction})
   end
@@ -106,6 +110,11 @@ defmodule Invermore.Game do
 
   def handle_call(:get_state, _from, state) do
     {:reply, state, state}
+  end
+
+  def handle_call(:reset_state, _from, state) do
+    default_state = %Invermore.Game.State{live_view_pid: state.live_view_pid}
+    {:reply, default_state, default_state}
   end
 
   defp send_updated_state_to_live_view(%{live_view_pid: live_view_pid} = state) do

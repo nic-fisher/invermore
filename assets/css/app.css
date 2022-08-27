@@ -8,6 +8,10 @@
 
 /* Alerts and form errors used by phx.new */
 
+html {
+  background-color: #f3a878;
+}
+
 .alert {
   padding: 15px;
   margin-bottom: 20px;
