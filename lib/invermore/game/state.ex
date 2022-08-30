@@ -11,6 +11,7 @@ defmodule Invermore.Game.State do
             prizes: [],
             live_view_pid: nil,
             game_over: false,
+            restarting_game: false,
             score: 0
 
   defmodule Obstacle do

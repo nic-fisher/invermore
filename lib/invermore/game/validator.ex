@@ -10,6 +10,7 @@ defmodule Invermore.Game.Validator do
   """
 
   @spec validate_movement(%State{}) :: %State{}
+  def validate_movement(%{game_over: true} = state), do: state
   def validate_movement(state) do
     state = validate_icon_and_obstacles(state)
     state = validate_icon_and_prizes(state)

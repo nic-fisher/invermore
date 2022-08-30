@@ -30,6 +30,20 @@ defmodule Invermore.Game.Manager do
     end
   end
 
+  @doc """
+  restart_game/1
+
+  Resets state to default values except for the live_view_pid.
+  """
+  @spec restart_game(pid()) :: %Invermore.Game.State{}
+  def restart_game(pid) do
+    Invermore.Game.restart_game(pid)
+  end
+
+  def complete_game_restart(pid) do
+    Invermore.Game.complete_game_restart(pid)
+  end
+
   defp convert_key_to_direction(key_pressed) do
     moves = %{
       "ArrowRight" => :right,
