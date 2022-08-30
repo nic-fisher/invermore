@@ -37,7 +37,11 @@ defmodule Invermore.Game.Manager do
   """
   @spec restart_game(pid()) :: %Invermore.Game.State{}
   def restart_game(pid) do
-    Invermore.Game.reset_state(pid)
+    Invermore.Game.restart_game(pid)
+  end
+
+  def complete_game_restart(pid) do
+    Invermore.Game.complete_game_restart(pid)
   end
 
   defp convert_key_to_direction(key_pressed) do

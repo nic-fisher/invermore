@@ -12,7 +12,7 @@ defmodule InvermoreWeb.GameLiveView do
   end
 
   def mount(_params, _, socket) do
-    {:ok, assign(socket, game_state: %Invermore.Game.State{})}
+    {:ok, assign(socket, game_state: %Invermore.Game.State{}, countdown: nil)}
   end
 
   def handle_event(
@@ -35,6 +35,7 @@ defmodule InvermoreWeb.GameLiveView do
     %{assigns: %{game_state: %{game_over: true}}} = socket
   ) do
     state = Game.Manager.restart_game(socket.assigns.pid)
+    start_countdown_in_one_second()
     {:noreply, assign(socket, game_state: state)}
   end
 
@@ -59,5 +60,32 @@ defmodule InvermoreWeb.GameLiveView do
 
   def handle_info(%{action: "update_state", state: state}, socket) do
     {:noreply, assign(socket, game_state: state)}
+  end
+
+  def handle_info(:start_countdown, socket) do
+    Process.send_after(self(), :decrease_countdown, 1000)
+    {:noreply, assign(socket, countdown: 3)}
+  end
+
+  def handle_info(:decrease_countdown, %{assigns: %{countdown: 1, pid: pid}} = socket) do
+    updated_state = Game.Manager.complete_game_restart(pid)
+
+    {:noreply, assign(socket, game_state: updated_state, countdown: nil)}
+  end
+
+  def handle_info(:decrease_countdown, %{assigns: %{countdown: seconds}} = socket) do
+    decrease_countdown()
+
+    {:noreply, assign(socket, countdown: seconds - 1)}
+  end
+
+  # The one second gives enough time for "Game over" to be removed from the screen
+  # before the countdown start
+  defp start_countdown_in_one_second() do
+    Process.send_after(self(), :start_countdown, 1000)
+  end
+
+  defp decrease_countdown() do
+    Process.send_after(self(), :decrease_countdown, 1000)
   end
 end

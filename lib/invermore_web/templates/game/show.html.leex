@@ -7,11 +7,12 @@
       <option value="hard">Hard</option>
     </select>
   </div>
-  <p class="instructions">Hit spacebar to start game</p>
+  <p class="instructions">Hit spacebar to start and restart game</p>
 </div>
 <h4 class="score text-center">Score: <%= @game_state.score %></h4>
 <div class="frame rounded-md">
-  <h1 class="game-over-header <%= @game_state.game_over && "game-over-header-active" %>">Game over</h1>
+  <h1 class="game-over-header <%= @game_state.game_over && !@game_state.restarting_game && "game-over-header-active" %>">Game over</h1>
+  <h1 class="countdown <%= @countdown && "countdown-active" %>"><%= @countdown %></h1>
   <div class="icon bg-gray-300" style="top: <%= @game_state.top %>px; left: <%= @game_state.left %>px;">
   </div>
   <%= for obstacle <- @game_state.obstacles do %>

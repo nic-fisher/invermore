@@ -13,8 +13,12 @@ defmodule Invermore.Game do
     GenServer.call(pid, :get_state)
   end
 
-  def reset_state(pid) do
-    GenServer.call(pid, :reset_state)
+  def restart_game(pid) do
+    GenServer.call(pid, :restart_game)
+  end
+
+  def complete_game_restart(pid) do
+    GenServer.call(pid, :complete_game_restart)
   end
 
   def move_icon(pid, direction) when direction in @directions do
@@ -29,9 +33,7 @@ defmodule Invermore.Game do
   end
 
   def handle_continue(:start_game, state) do
-    Process.send_after(self(), :create_obstacle, 3000)
-    Process.send_after(self(), :increase_score, 1000)
-    Process.send_after(self(), :create_prize, 1000)
+    start_game()
     {:noreply, state}
   end
 
@@ -112,9 +114,16 @@ defmodule Invermore.Game do
     {:reply, state, state}
   end
 
-  def handle_call(:reset_state, _from, state) do
-    default_state = %Invermore.Game.State{live_view_pid: state.live_view_pid}
+  def handle_call(:restart_game, _from, state) do
+    default_state = %Invermore.Game.State{live_view_pid: state.live_view_pid, restarting_game: true, game_over: true}
     {:reply, default_state, default_state}
+  end
+
+  def handle_call(:complete_game_restart, _from, state) do
+    updated_state = %{state | restarting_game: false, game_over: false}
+    start_game()
+
+    {:reply, updated_state, updated_state}
   end
 
   defp send_updated_state_to_live_view(%{live_view_pid: live_view_pid} = state) do
@@ -123,5 +132,11 @@ defmodule Invermore.Game do
 
   defp valid_movement(state) do
     Invermore.Game.Validator.validate_movement(state)
+  end
+
+  defp start_game() do
+    Process.send_after(self(), :create_obstacle, 3000)
+    Process.send_after(self(), :increase_score, 1000)
+    Process.send_after(self(), :create_prize, 1000)
   end
 end
