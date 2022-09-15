@@ -88,11 +88,24 @@
   z-index: 1;
 }
 
+.logo-value {
+  height: 50px;
+  width: 50px;
+}
+
+.prize img {
+  max-height: 100%;
+  max-width: 100%;
+}
+
 .icon {
   width: 20px;
   height: 20px;
   position: absolute;
   border-radius: 20px;
+  background-image: url("../images/grilld_logo.png");
+  /* background-image: url("img_tree.gif"), url("paper.gif"); */
+  background-repeat: no-repeat;
 }
 
 .obstacle {
@@ -107,7 +120,8 @@
   width: 20px;
   height: 20px;
   position: absolute;
-  background-color: blue;
+  background-image: url("../images/grilld_logo.png");
+  /* background-color: blue; */
 }
 
 .removing-prize {

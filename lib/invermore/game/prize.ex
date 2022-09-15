@@ -1,6 +1,6 @@
 defmodule Invermore.Game.Prize do
-  alias Invermore.Game.{State, State.Prize, Size}
-
+  alias Invermore.Game.{State, State.Prize, Size, Levels}
+  require Logger
   @doc """
   create/1
 
@@ -11,15 +11,16 @@ defmodule Invermore.Game.Prize do
   """
   @spec create(%State{}) :: %State{}
   def create(%{game_over: true} = state), do: state
-  def create(state) do
+  def create(%{difficulty_level: difficulty_level} = state) do
+    Logger.info("difficulty_level: #{difficulty_level}")
     new_prize = %Prize{
       id: Ecto.UUID.generate(),
       left: Enum.random(0..Size.max_left()),
       top: Enum.random(0..Size.max_top())
     }
 
-    Process.send_after(self(), {:start_removing_prize, new_prize.id}, 3000)
-    Process.send_after(self(), :create_prize, 5000)
+    Process.send_after(self(), {:start_removing_prize, new_prize.id}, Levels.start_removing_prize_time(difficulty_level))
+    Process.send_after(self(), :create_prize, Levels.create_prize_time(difficulty_level))
 
     %{state | prizes: [new_prize | state.prizes]}
   end
@@ -33,7 +34,7 @@ defmodule Invermore.Game.Prize do
   """
   @spec start_removing_prize(String.t(), %State{}) :: %State{}
   def start_removing_prize(_id, %{game_over: true} = state), do: state
-  def start_removing_prize(id, state) do
+  def start_removing_prize(id, %{difficulty_level: difficulty_level} = state) do
     updated_prizes = Enum.reduce(state.prizes, [], fn prize, acc ->
       if prize.id == id do
         [%{prize | removing: true} | acc]
@@ -42,7 +43,7 @@ defmodule Invermore.Game.Prize do
       end
     end)
 
-    Process.send_after(self(), {:remove_prize, id}, 10000)
+    Process.send_after(self(), {:remove_prize, id}, Levels.remove_prize_time(difficulty_level))
 
     %{state | prizes: updated_prizes}
   end

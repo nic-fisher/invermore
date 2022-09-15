@@ -12,6 +12,7 @@ defmodule Invermore.Game.State do
             live_view_pid: nil,
             game_over: false,
             restarting_game: false,
+            difficulty_level: "easy",
             score: 0
 
   defmodule Obstacle do

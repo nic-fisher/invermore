@@ -1,5 +1,5 @@
 defmodule Invermore.Game.Obstacle do
-  alias Invermore.Game.{Size, State}
+  alias Invermore.Game.{Size, State, Levels}
 
   @max_obstacles 25
 
@@ -10,7 +10,7 @@ defmodule Invermore.Game.Obstacle do
   @spec create(%State{}) :: %State{}
   def create(%{game_over: true} = state), do: state
 
-  def create(%State{obstacles: obstacles} = state) when length(obstacles) <= @max_obstacles do
+  def create(%State{obstacles: obstacles, difficulty_level: difficulty_level} = state) when length(obstacles) <= @max_obstacles do
     moving_direction = Enum.random([:left, :right, :up, :down])
     {left, top} = starting_position(moving_direction)
 
@@ -21,14 +21,14 @@ defmodule Invermore.Game.Obstacle do
       moving_direction: moving_direction
     }
 
-    Process.send_after(self(), :create_obstacle, 3000)
+    Process.send_after(self(), :create_obstacle, Levels.create_obstacle_time(difficulty_level))
     Process.send_after(self(), {:move_obstacle, new_obstacle.id}, 80)
 
     %{state | obstacles: [new_obstacle | state.obstacles]}
   end
 
-  def create(state) do
-    Process.send_after(self(), :create_obstacle, 3000)
+  def create(%{difficulty_level: difficulty_level} = state) do
+    Process.send_after(self(), :create_obstacle, Levels.create_obstacle_time(difficulty_level))
     state
   end
 
@@ -48,7 +48,7 @@ defmodule Invermore.Game.Obstacle do
           updated_obstacles
 
         {:ok, updated_obstacles} ->
-          Process.send_after(self(), {:move_obstacle, id}, 110)
+          Process.send_after(self(), {:move_obstacle, id}, 80)
           updated_obstacles
       end
 
