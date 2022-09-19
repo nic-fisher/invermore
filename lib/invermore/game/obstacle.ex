@@ -18,7 +18,8 @@ defmodule Invermore.Game.Obstacle do
       id: Ecto.UUID.generate(),
       left: left,
       top: top,
-      moving_direction: moving_direction
+      moving_direction: moving_direction,
+      image_src: select_obstacle_image()
     }
 
     Process.send_after(self(), :create_obstacle, Levels.create_obstacle_time(difficulty_level))
@@ -126,5 +127,9 @@ defmodule Invermore.Game.Obstacle do
     else
       {:remove_obstacle, 0}
     end
+  end
+
+  defp select_obstacle_image() do
+    Enum.random(["../images/gumption-blue-background.png", "../images/georgie-blue-background.png"])
   end
 end

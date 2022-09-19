@@ -12,7 +12,6 @@ defmodule Invermore.Game.Prize do
   @spec create(%State{}) :: %State{}
   def create(%{game_over: true} = state), do: state
   def create(%{difficulty_level: difficulty_level} = state) do
-    Logger.info("difficulty_level: #{difficulty_level}")
     new_prize = %Prize{
       id: Ecto.UUID.generate(),
       left: Enum.random(0..Size.max_left()),

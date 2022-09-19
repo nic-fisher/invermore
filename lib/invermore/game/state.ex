@@ -21,7 +21,8 @@ defmodule Invermore.Game.State do
               top: nil,
               max_left: Size.max_left(),
               max_top: Size.max_top(),
-              moving_direction: nil
+              moving_direction: nil,
+              image_src: nil
   end
 
   defmodule Prize do

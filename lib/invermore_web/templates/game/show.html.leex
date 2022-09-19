@@ -15,11 +15,12 @@
   </div>
   <%= for obstacle <- @game_state.obstacles do %>
     <div class="obstacle" style="top: <%= obstacle.top %>px; left: <%= obstacle.left %>px;">
+      <img src="<%= obstacle.image_src %>">
     </div>
   <% end %>
   <%= for prize <- @game_state.prizes do %>
     <div class="prize <%= prize.removing && "removing-prize" %>" style="top: <%= prize.top %>px; left: <%= prize.left %>px; border-radius: 20px;">
-      <img src="../images/grilld_logo.png">
+      <img src="../images/burger-blue-background.png">
     </div>
   <% end %>
 </div>
