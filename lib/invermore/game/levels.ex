@@ -1,6 +1,6 @@
 defmodule Invermore.Game.Levels do
   @moduledoc """
-  This module holds all the values that can be changed to make the game harder.any()
+  This module holds all the values that adjust the difficulty of the game.
 
   All values will be used as milliseconds.
   """

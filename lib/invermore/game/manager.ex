@@ -47,6 +47,7 @@ defmodule Invermore.Game.Manager do
     Invermore.Game.complete_game_restart(pid)
   end
 
+  @spec update_difficulty_level(pid(), String.t()) :: %Invermore.Game.State{}
   def update_difficulty_level(pid, level) when level in @available_levels do
     Invermore.Game.update_difficulty_level(pid, level)
   end

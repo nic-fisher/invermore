@@ -1,6 +1,5 @@
 defmodule Invermore.Game.Prize do
   alias Invermore.Game.{State, State.Prize, Size, Levels}
-  require Logger
   @doc """
   create/1
 
