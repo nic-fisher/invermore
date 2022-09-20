@@ -1,6 +1,5 @@
 defmodule InvermoreWeb.GameLiveView do
   use Phoenix.LiveView
-
   alias Invermore.Game
 
   def render(%{page: "error"} = assigns) do
@@ -12,20 +11,22 @@ defmodule InvermoreWeb.GameLiveView do
   end
 
   def mount(_params, _, socket) do
-    {:ok, assign(socket, game_state: %Invermore.Game.State{}, countdown: nil)}
+    {:ok, assign(socket, game_state: %Invermore.Game.State{}, countdown: nil, selected_difficulty_level: "easy")}
   end
 
   def handle_event(
         "key_pressed",
         %{"key" => " "},
-        %{assigns: %{game_state: %{live_view_pid: nil}}} = socket
+        %{assigns: %{game_state: %{live_view_pid: nil}, selected_difficulty_level: selected_difficulty_level}} = socket
       ) do
     with true <- connected?(socket),
-         {:ok, game_pid} = Game.Manager.start_game() do
+         {:ok, game_pid} = Game.Manager.start_game(selected_difficulty_level) do
+
       state = Game.get_state(game_pid)
       {:noreply, assign(socket, game_state: state, pid: game_pid)}
     else
-      _ -> {:noreply, socket}
+      _ ->
+        {:noreply, socket}
     end
   end
 
@@ -56,6 +57,26 @@ defmodule InvermoreWeb.GameLiveView do
 
   def handle_event("key_pressed", %{"key" => _key_pressed}, socket) do
     {:noreply, socket}
+  end
+
+  def handle_event(
+    "level_change",
+    %{"selected_difficulty_level" => %{"level" => level}},
+    %{assigns: %{game_state: %{live_view_pid: nil}}} = socket
+    ) do
+
+    {:noreply, assign(socket, selected_difficulty_level: level)}
+  end
+
+  def handle_event(
+    "level_change",
+    %{"selected_difficulty_level" => %{"level" => level}},
+    socket
+    ) do
+
+    updated_state = Game.Manager.update_difficulty_level(socket.assigns.pid, level)
+
+    {:noreply, assign(socket, game_state: updated_state, selected_difficulty_level: level)}
   end
 
   def handle_info(%{action: "update_state", state: state}, socket) do

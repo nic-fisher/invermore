@@ -1,12 +1,13 @@
 defmodule Invermore.Game do
   use GenServer, restart: :transient
+  alias Invermore.Game.Levels
 
   @directions [:left, :right, :up, :down]
 
   # Client API
 
-  def start_link(live_view_pid) do
-    GenServer.start_link(__MODULE__, live_view_pid)
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args)
   end
 
   def get_state(pid) do
@@ -25,15 +26,19 @@ defmodule Invermore.Game do
     GenServer.call(pid, {:move_icon, direction})
   end
 
+  def update_difficulty_level(pid, level) do
+    GenServer.call(pid, {:update_difficulty_level, level})
+  end
+
   # Server Callbacks
 
-  def init(live_view_pid) do
-    {:ok, %Invermore.Game.State{live_view_pid: live_view_pid},
+  def init([live_view_pid, difficulty_level]) do
+    {:ok, %Invermore.Game.State{live_view_pid: live_view_pid, difficulty_level: difficulty_level},
      {:continue, :start_game}}
   end
 
-  def handle_continue(:start_game, state) do
-    start_game()
+  def handle_continue(:start_game, %{difficulty_level: difficulty_level} = state) do
+    start_game(difficulty_level)
     {:noreply, state}
   end
 
@@ -115,13 +120,19 @@ defmodule Invermore.Game do
   end
 
   def handle_call(:restart_game, _from, state) do
-    default_state = %Invermore.Game.State{live_view_pid: state.live_view_pid, restarting_game: true, game_over: true}
+    default_state = %Invermore.Game.State{live_view_pid: state.live_view_pid, restarting_game: true, game_over: true, difficulty_level: state.difficulty_level}
     {:reply, default_state, default_state}
   end
 
   def handle_call(:complete_game_restart, _from, state) do
     updated_state = %{state | restarting_game: false, game_over: false}
-    start_game()
+    start_game(updated_state.difficulty_level)
+
+    {:reply, updated_state, updated_state}
+  end
+
+  def handle_call({:update_difficulty_level, level}, _from, state) do
+    updated_state = %{state | difficulty_level: level}
 
     {:reply, updated_state, updated_state}
   end
@@ -134,9 +145,9 @@ defmodule Invermore.Game do
     Invermore.Game.Validator.validate_movement(state)
   end
 
-  defp start_game() do
-    Process.send_after(self(), :create_obstacle, 3000)
-    Process.send_after(self(), :increase_score, 1000)
+  defp start_game(difficulty_level) do
+    Process.send_after(self(), :create_obstacle, Levels.create_obstacle_time(difficulty_level))
+    Process.send_after(self(), :increase_score, Levels.increase_score_time(difficulty_level))
     Process.send_after(self(), :create_prize, 1000)
   end
 end

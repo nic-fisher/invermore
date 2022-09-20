@@ -1,10 +1,12 @@
 defmodule Invermore.Game.Manager do
+  alias Invermore.Game.Levels
   @moduledoc """
   This module is a connection between the LiveView and the Game Genserver. It handles all user actions
   and starting the game.
   """
 
   @available_keys ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown"]
+  @available_levels Levels.available_levels
 
   @spec move(pid(), String.t()) :: %Invermore.Game.State{}
   def move(pid, key_pressed) when key_pressed in @available_keys do
@@ -19,10 +21,10 @@ defmodule Invermore.Game.Manager do
 
   Creates the game and links it to the live view process.
   """
-  @spec start_game() :: {:ok, pid()} | {:error, String.t()}
-  def start_game() do
+  @spec start_game(String.t()) :: {:ok, pid()} | {:error, String.t()}
+  def start_game(difficulty_level) do
     with {:ok, game_pid} <-
-           DynamicSupervisor.start_child(Invermore.Game.Supervisor, {Invermore.Game, self()}),
+           DynamicSupervisor.start_child(Invermore.Game.Supervisor, {Invermore.Game, [self(), difficulty_level]}),
          true <- Process.link(game_pid) do
       {:ok, game_pid}
     else
@@ -40,9 +42,17 @@ defmodule Invermore.Game.Manager do
     Invermore.Game.restart_game(pid)
   end
 
+  @spec complete_game_restart(pid()) :: %Invermore.Game.State{}
   def complete_game_restart(pid) do
     Invermore.Game.complete_game_restart(pid)
   end
+
+  @spec update_difficulty_level(pid(), String.t()) :: %Invermore.Game.State{}
+  def update_difficulty_level(pid, level) when level in @available_levels do
+    Invermore.Game.update_difficulty_level(pid, level)
+  end
+
+  def update_difficulty_level(pid, _level), do: Invermore.Game.get_state(pid)
 
   defp convert_key_to_direction(key_pressed) do
     moves = %{

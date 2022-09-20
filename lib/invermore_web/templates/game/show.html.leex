@@ -1,11 +1,9 @@
 <div>
   <h2 class="game-header">The Title of the Game</h2>
   <div class="select-container">
-    <select id="difficulty-level" class="difficulty-level w-full inline-flex items-center border-gray-300 leading-relaxed focus:ring-gray-300 focus:border-gray-300">
-      <option selected value="easy">Easy</option>
-      <option value="medium">Medium</option>
-      <option value="hard">Hard</option>
-    </select>
+    <%= form_for :selected_difficulty_level, "#", [phx_change: "level_change"], fn f -> %>
+      <%= select f, :level, Enum.map(Invermore.Game.Levels.available_levels, fn l -> [key: String.capitalize(l), value: l] end) , class: "difficulty-level w-full inline-flex items-center border-gray-300 leading-relaxed focus:ring-gray-300 focus:border-gray-300", selected: @game_state.difficulty_level %>
+    <% end %>
   </div>
   <p class="instructions">Hit spacebar to start and restart game</p>
 </div>
@@ -13,14 +11,16 @@
 <div class="frame rounded-md">
   <h1 class="game-over-header <%= @game_state.game_over && !@game_state.restarting_game && "game-over-header-active" %>">Game over</h1>
   <h1 class="countdown <%= @countdown && "countdown-active" %>"><%= @countdown %></h1>
-  <div class="icon bg-gray-300" style="top: <%= @game_state.top %>px; left: <%= @game_state.left %>px;">
+  <div class="bg-gray-300 icon" style="top: <%= @game_state.top %>px; left: <%= @game_state.left %>px;">
   </div>
   <%= for obstacle <- @game_state.obstacles do %>
     <div class="obstacle" style="top: <%= obstacle.top %>px; left: <%= obstacle.left %>px;">
+      <img src="<%= obstacle.image_src %>">
     </div>
   <% end %>
   <%= for prize <- @game_state.prizes do %>
     <div class="prize <%= prize.removing && "removing-prize" %>" style="top: <%= prize.top %>px; left: <%= prize.left %>px; border-radius: 20px;">
+      <img src="../images/burger-blue-background.png">
     </div>
   <% end %>
 </div>

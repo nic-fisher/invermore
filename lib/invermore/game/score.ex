@@ -1,5 +1,5 @@
 defmodule Invermore.Game.Score do
-  alias Invermore.Game.State
+  alias Invermore.Game.{State, Levels}
 
   @increase_amount 1
   @increase_obstacle_frequency 10
@@ -15,11 +15,11 @@ defmodule Invermore.Game.Score do
   @spec increase(%State{}) :: %State{}
   def increase(%{game_over: true} = state), do: state
 
-  def increase(%{score: score} = state) do
+  def increase(%{score: score, difficulty_level: difficulty_level} = state) do
     updated_state = %{state | score: score + @increase_amount}
-    increase_obstacles(updated_state.score)
+    increase_obstacles(updated_state.score, Levels.increase_obstacle_frequency(difficulty_level))
     updated_state = increase_obstacle_speed(updated_state)
-    Process.send_after(self(), :increase_score, 500)
+    Process.send_after(self(), :increase_score, Levels.increase_score_time(difficulty_level))
     updated_state
   end
 
@@ -33,11 +33,11 @@ defmodule Invermore.Game.Score do
     %{state | score: score + amount}
   end
 
-  defp increase_obstacles(score) when rem(score, @increase_obstacle_frequency) == 0 do
+  defp increase_obstacles(score, increase_obstacle_frequency) when rem(score, increase_obstacle_frequency) == 0 do
     send(self(), :create_obstacle)
   end
 
-  defp increase_obstacles(_score), do: nil
+  defp increase_obstacles(_score, _increase_obstacle_frequency), do: nil
 
   defp increase_obstacle_speed(%State{obstacle_speed: obstacle_speed} = state)
        when obstacle_speed >= @max_obstacle_speed,
