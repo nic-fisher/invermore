@@ -9,7 +9,7 @@ defmodule Invermore.Application do
   def start(_type, _args) do
     children = [
       # Start the Ecto repository
-      Invermore.Repo,
+      # Invermore.Repo,
       # Start the Telemetry supervisor
       InvermoreWeb.Telemetry,
       # Start the PubSub system

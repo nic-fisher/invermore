@@ -93,15 +93,17 @@
   height: 20px;
   position: absolute;
   border-radius: 20px;
-  background-image: url("../images/grilld_logo.png");
   background-repeat: no-repeat;
 }
 
 .obstacle {
-  width: 20px;
-  height: 20px;
+  max-width: 20px;
+  max-height: 20px;
   position: absolute;
-  background-color: green;
+  border-radius: 20px;
+}
+
+.obstacle img {
   border-radius: 20px;
 }
 
@@ -109,7 +111,6 @@
   width: 20px;
   height: 20px;
   position: absolute;
-  background-image: url("../images/grilld_logo.png");
 }
 
 .removing-prize {

@@ -7,8 +7,8 @@
 # General application configuration
 import Config
 
-config :invermore,
-  ecto_repos: [Invermore.Repo]
+# config :invermore,
+#   ecto_repos: [Invermore.Repo]
 
 # Configures the endpoint
 config :invermore, InvermoreWeb.Endpoint,
