@@ -2,7 +2,6 @@ defmodule Invermore.Game.Score do
   alias Invermore.Game.{State, Levels}
 
   @increase_amount 1
-  @increase_obstacle_frequency 10
   @max_obstacle_speed 8
   @increase_obstacle_speed_frequency 20
 

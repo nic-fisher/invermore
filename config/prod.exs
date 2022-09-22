@@ -18,7 +18,9 @@ config :logger, level: :info
 #
 # To get SSL working, you will need to add the `https` key
 # to the previous section and set your `:url` port to 443:
-#
+# config :invermore, InvermoreWeb.Endpoint,
+#   url: [host: System.get_env("RENDER_EXTERNAL_HOSTNAME") || "localhost", port: 80],  cache_static_manifest: "priv/static/cache_manifest.json"
+
 #     config :invermore, InvermoreWeb.Endpoint,
 #       ...,
 #       url: [host: "example.com", port: 443],

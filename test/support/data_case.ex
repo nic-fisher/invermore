@@ -18,8 +18,6 @@ defmodule Invermore.DataCase do
 
   using do
     quote do
-      alias Invermore.Repo
-
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
@@ -27,18 +25,10 @@ defmodule Invermore.DataCase do
     end
   end
 
-  setup tags do
-    Invermore.DataCase.setup_sandbox(tags)
+  setup do
     :ok
   end
 
-  @doc """
-  Sets up the sandbox based on the test tags.
-  """
-  def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Invermore.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
-  end
 
   @doc """
   A helper that transforms changeset errors into a map of messages.

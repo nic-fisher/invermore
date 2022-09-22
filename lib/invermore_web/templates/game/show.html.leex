@@ -1,5 +1,5 @@
 <div>
-  <h2 class="game-header">The Title of the Game</h2>
+  <h2 class="game-header">Avoid The Cleaning</h2>
   <div class="select-container">
     <%= form_for :selected_difficulty_level, "#", [phx_change: "level_change"], fn f -> %>
       <%= select f, :level, Enum.map(Invermore.Game.Levels.available_levels, fn l -> [key: String.capitalize(l), value: l] end) , class: "difficulty-level w-full inline-flex items-center border-gray-300 leading-relaxed focus:ring-gray-300 focus:border-gray-300", selected: @game_state.difficulty_level %>
