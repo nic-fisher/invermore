@@ -50,9 +50,7 @@ if config_env() == :prod do
       """
 
   host = System.get_env("PHX_HOST") || "example.com"
-  # PHX_HOST = "localhost"
   port = String.to_integer(System.get_env("PORT") || "4000")
-  # PORT = 4000
 
   config :invermore, InvermoreWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
