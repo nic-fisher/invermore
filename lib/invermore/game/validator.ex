@@ -45,7 +45,7 @@ defmodule Invermore.Game.Validator do
     %{state | prizes: remaining_prizes}
   end
 
-  defp items_touching?(top_distance, left_distance) when top_distance in -25..25 and left_distance in -25..25,
+  defp items_touching?(top_distance, left_distance) when top_distance in -17..17 and left_distance in -17..17,
     do: true
 
   defp items_touching?(_, _), do: false
