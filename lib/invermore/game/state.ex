@@ -1,8 +1,8 @@
 defmodule Invermore.Game.State do
   alias Invermore.Game.Size
 
-  defstruct left: 340,
-            top: 190,
+  defstruct left: 333,
+            top: 200,
             max_left: Size.max_left(),
             max_top: Size.max_top(),
             moving_direction: nil,

@@ -89,28 +89,43 @@
 }
 
 .icon {
-  width: 20px;
-  height: 20px;
+  width: 35px;
+  height: 35px;
   position: absolute;
   border-radius: 20px;
   background-repeat: no-repeat;
+  background-color: #135a8a;
 }
 
+.icon img {
+  border-radius: 20px;
+  width: 35px;
+  height: 35px;
+} 
+
 .obstacle {
-  width: 20px;
-  height: 20px;
+  width: 35px;
+  height: 35px;
   position: absolute;
   border-radius: 20px;
 }
 
 .obstacle img {
   border-radius: 20px;
+  height: 35px;
+  width: 35px;
 }
 
 .prize {
-  width: 20px;
-  height: 20px;
+  width: 35px;
+  height: 35px;
   position: absolute;
+}
+
+.prize img {
+  width: 35px;
+  height: 35px;
+  border-radius: 20px;
 }
 
 .removing-prize {
