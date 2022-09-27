@@ -26,11 +26,19 @@
   border-width: 2px;
 }
 
-.instructions {
+.game-instructions {
   color: #135a8a;
   text-align: center;
   font-size: 0.80rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+}
+
+
+.start-instructions {
+  color: #135a8a;
+  text-align: center;
+  font-size: 0.80rem;
+  margin-bottom: 1.5rem;
 }
 
 .score {
@@ -46,6 +54,7 @@
   margin: 0 auto;
   position: relative; /* Ensure absolute positioned child elements are relative to this*/
   background-color: #135a8a;
+  margin-bottom: 3rem;
 }
 
 .game-over-header {

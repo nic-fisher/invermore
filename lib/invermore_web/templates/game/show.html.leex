@@ -1,11 +1,16 @@
 <div>
   <h2 class="game-header">Avoid The Cleaning</h2>
+  <p class="game-instructions">
+    It’s a Saturday morning, you’ve just woken up and know what is<br />about to come… Georgie is going to want you to do some cleaning. <br />Use the arrow keys to avoid Georgie and the gumption while eating<br /> as many burgers as possible. Godspeed 🍔🫡
+  </p>
   <div class="select-container">
     <%= form_for :selected_difficulty_level, "#", [phx_change: "level_change"], fn f -> %>
       <%= select f, :level, Enum.map(Invermore.Game.Levels.available_levels, fn l -> [key: String.capitalize(l), value: l] end) , class: "difficulty-level w-full inline-flex items-center border-gray-300 leading-relaxed focus:ring-gray-300 focus:border-gray-300", selected: @game_state.difficulty_level %>
     <% end %>
   </div>
-  <p class="instructions">Hit spacebar to start and restart game</p>
+  <p class="start-instructions">
+    Hit spacebar to start and restart game
+  </p>
 </div>
 <h4 class="score text-center">Score: <%= @game_state.score %></h4>
 <div class="frame rounded-md">
