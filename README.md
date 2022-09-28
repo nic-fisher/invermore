@@ -1,19 +1,14 @@
 # Invermore
 
-To start your Phoenix server:
+This is a one player game where the aim of the game is to avoid Georgie (my wife) and the gumption while collecting as many burgers has possible. There are 
+three levels to select from.
 
+This isn't hosted anywhere but it can be. There's a `./build.sh` script which will compile all the necessary files for release.
+
+To run this locally:
   * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
   * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+This is how the game looks:
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+![invermore-gif](https://user-images.githubusercontent.com/50910966/192749631-f40aa23c-3d26-4508-b041-b1061169f4d1.gif)
